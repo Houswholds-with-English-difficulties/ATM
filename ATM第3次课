@@ -1,0 +1,137 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+struct Account
+{
+	char username[100];
+	char password[100];	
+	
+	struct Account * next;
+};
+typedef struct Account Account;
+
+Account * head=NULL;//指向头结点的指针 
+Account * tail=NULL;//指向尾结点的指针 
+Account * curAccount;//当前登录的账户 
+
+//找到返回1，否则返回0 
+int findAccount(Account a)
+{
+	Account * curP=head;
+	while(curP!=NULL)
+	{
+		if((strcmp(curP->username,a.username)==0)&&(strcmp(curP->password,a.password)==0))
+		{
+			curAccount=curP; 
+			return 1;
+		} 
+		curP=curP->next;
+	} 
+	return 0;
+}
+
+void updatePassword()
+{
+	char oldPassword[100];
+	printf("请输入旧密码：\n");
+	scanf("%s",oldPassword);
+	if(strcmp(oldPassword,curAccount->password)==0)
+	{
+		printf("请输入新密码:\n");
+		scanf("%s",curAccount->password);
+	}
+	else
+	{
+		printf("密码输入错误!\n");
+	}
+	
+}
+
+void homePage()
+{
+	printf("按1，取款\n");
+	printf("按2，转帐\n");
+	//....
+	printf("按100,修改密码\n");
+	
+	updatePassword();
+}
+
+void signIn()
+{
+	for(int i=0;i<3;i++)
+	{
+		Account a;
+		printf("请输入账号：\n");
+		scanf("%s",a.username);
+		
+		printf("请输入密码：\n");
+		scanf("%s",a.password);
+		
+		if(findAccount(a))
+		{
+			printf("登录成功\n");
+			homePage();
+			break;
+		}
+		else
+		{
+			printf("登录失败\n");
+		}
+	}
+}
+
+void loadData()
+{
+	FILE* fp=fopen("D:/atm.txt","r");
+	if(fp!=NULL)
+	{
+		while(!feof(fp))
+		{
+			//创建结点
+			Account * newNode=(Account *)malloc(sizeof(Account)); 
+			
+			//结点赋值
+			newNode->next=NULL;
+			fscanf(fp,"%s %s\n",newNode->username,newNode->password); 
+			
+			//添加到链表
+			if(head==NULL)
+			{
+				head=newNode;
+				tail=newNode;
+			}
+			else
+			{
+				tail->next=newNode;
+				tail=newNode;
+			}
+		}
+		fclose(fp);
+	}
+	printf("加载成功!\n");
+}
+
+void printAccount(Account * curP)
+{
+	printf("%s\t%\n",curP->username,curP->password);
+}
+
+void printLinkedList()
+{
+	Account * curP=head;
+	while(curP!=NULL)
+	{
+		printAccount(curP);
+		curP=curP->next;
+	}
+}
+
+int main()
+{
+	loadData(); 
+	printLinkedList();
+	signIn();
+	return 0;
+}
